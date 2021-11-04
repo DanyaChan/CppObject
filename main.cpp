@@ -1,13 +1,19 @@
 #include <iostream>
-#include "Object.h"
-using namespace MapObject;
-int main() {
-    Object a(List{1,2,3});
-    Object none;
-    Object b(MapType{{"a", 3}, {"b", 3}});
-    std::cout << a << std::endl;
-    std::cout << b << std::endl;
-    std::cout << none << std::endl;
-    a[1] = std::string("ertet");
-    std::cout << a << std::endl;
+#include "Headers/Object.h"
+
+using namespace CppObject;
+
+
+int main()
+{
+    Object a = "test", b = 1;
+    Object c(MapType{});
+    c["string"] = a;
+    c["Int"] = b;
+    c["double"] = 3.14;
+    c["list"] = Object(List{1, 2, "test"});
+    c["object"] = Object(c);
+    std::cout << c << std::endl;
+    std::cout << a + Object(" ") +  a;
+    std::cout << a + Object(1);
 }

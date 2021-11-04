@@ -1,6 +1,11 @@
 //
 // Created by danil on 03.11.2021.
 //
+
+
+#ifndef OBJECT_OBJECT_H
+#define OBJECT_OBJECT_H
+
 #include <string>
 #include <unordered_map>
 #include <set>
@@ -8,14 +13,8 @@
 #include <exception>
 #include <ostream>
 
-#ifndef OBJECT_OBJECT_H
-#define OBJECT_OBJECT_H
-
-namespace MapObject
+namespace CppObject
 {
-    class Object;
-    typedef std::vector<Object> List;
-    typedef std::unordered_map<std::string, Object> MapType;
 
     class Exception : std::exception
     {
@@ -39,6 +38,11 @@ namespace MapObject
         std::string info;
     };
 
+    class Object;
+
+    typedef std::vector<Object> List;
+    typedef std::unordered_map<std::string, Object> MapType;
+
     class Object
     {
     public:
@@ -47,6 +51,9 @@ namespace MapObject
         Object(int);
 
         Object(double);
+
+        Object(const char *s) : Object(std::string(s))
+        {}
 
         Object(const std::string &);
 
@@ -69,7 +76,19 @@ namespace MapObject
 
         Object &operator[](const std::string &);
 
+        Object &operator[](const char s[]) {
+            return operator[](std::string(s));
+        }
+
+        const Object &operator[](const std::string &) const;
+
+        const Object &operator[](const char s[]) const {
+            return operator[](std::string(s));
+        }
+
         Object &operator[](int);
+
+        const Object &operator[](int) const;
 
         Object &operator=(const Object &a);
 
@@ -81,6 +100,8 @@ namespace MapObject
 
         Object &operator/=(const Object &a);
 
+        friend std::ostream &operator<<(std::ostream &os, const Object &obj);
+
         friend Object operator+(const Object &a, const Object &b);
 
         friend Object operator-(const Object &a, const Object &b);
@@ -89,40 +110,6 @@ namespace MapObject
 
         friend Object operator*(const Object &a, const Object &b);
 
-        friend std::ostream &operator<<(std::ostream &os, const Object &obj)
-        {
-            if (obj.type == None) {
-                os << "None";
-            }
-            else if (obj.type == Int) {
-                os << *((int *)obj.container);
-            } else if (obj.type == Double) {
-                os << *((double *)obj.container);
-            } else if (obj.type == String) {
-                os << *((std::string *)obj.container);
-            } else if (obj.type == ListType) {
-                os << '[';
-                bool next = false;
-                for (const auto &o : *((List*) obj.container))
-                {
-                    if (next) os << ", ";
-                    os << o;
-                    next = true;
-                }
-                os << ']';
-            } else if (obj.type == ObjectType) {
-                os << '{';
-                bool next = false;
-                for (const auto &o : *((MapType *) obj.container))
-                {
-                    if (next) os << ", ";
-                    os << o.first << " : " << o.second;
-                    next = true;
-                }
-                os << '}';
-            }
-        }
-
         Object &operator++();
 
         Object &operator--();
@@ -130,7 +117,6 @@ namespace MapObject
         Object operator++(int);
 
         Object operator--(int);
-
 
     private:
 
@@ -144,7 +130,9 @@ namespace MapObject
             ListType
         };
         char type;
-        mutable void *container;
+        void *container;
     };
 }
+
+
 #endif //OBJECT_OBJECT_H
