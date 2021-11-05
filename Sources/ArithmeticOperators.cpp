@@ -45,7 +45,8 @@ namespace CppObject
             {
                 throw TypeError("No viable type conversion.");
             }
-        } else if (type == Double)
+        }
+        else if (type == Double)
         {
             if (a.type == Int)
             {
@@ -72,6 +73,7 @@ namespace CppObject
         }
         return *this;
     }
+
 
     Object &Object::operator-=(const Object &a)
     {

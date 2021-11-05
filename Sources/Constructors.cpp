@@ -27,9 +27,9 @@ namespace CppObject
             container((void *) new std::string(s))
     {}
 
-    Object::Object(const std::vector<Object> &list) :
+    Object::Object(const List &list) :
             type(ListType),
-            container((void *) new std::vector<Object>(list))
+            container((void *) new List(list))
     {}
 
     Object::Object(const MapType &map) :
@@ -46,6 +46,12 @@ namespace CppObject
 
     }
 
+    Object::Object(const Callable &f) :
+            type(CallableType),
+            container((void *) new Callable(f))
+    {
+
+    }
 
     void *Object::allocateObject(const Object &obj)
     {
@@ -63,7 +69,9 @@ namespace CppObject
                 return (void *) new MapType(
                         *((MapType *) obj.container));
             case ListType:
-                return (void *) new std::vector<Object>(*((std::vector<Object> *) obj.container));
+                return (void *) new List(*((List *) obj.container));
+            case CallableType:
+                return (void *) new Callable(*(Callable *) obj.container);
         }
         return nullptr;
     }
@@ -87,7 +95,10 @@ namespace CppObject
                 delete (MapType *) container;
                 break;
             case ListType:
-                delete (std::vector<Object> *) container;
+                delete (List *) container;
+                break;
+            case CallableType:
+                delete (Callable *) container;
                 break;
         }
     }
@@ -117,5 +128,10 @@ namespace CppObject
         type = a.type;
         container = allocateObject(a);
         return *this;
+    }
+
+    Object &Object::operator=(const char *s)
+    {
+        return operator=(std::string(s));
     }
 }

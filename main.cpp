@@ -3,17 +3,29 @@
 
 using namespace CppObject;
 
-
 int main()
 {
     Object a = "test", b = 1;
-    Object c(MapType{});
-    c["string"] = a;
-    c["Int"] = b;
-    c["double"] = 3.14;
-    c["list"] = Object(List{1, 2, "test"});
-    c["object"] = Object(c);
-    std::cout << c << std::endl;
-    std::cout << a + Object(" ") +  a;
-    std::cout << a + Object(1);
+    a+="12";
+    Object obj(MapType{});
+    obj["string"] = a;
+    obj["Int"] = b;
+    obj["double"] = 3.14;
+    obj["list"] = Object(List{1, 2, "test"});
+    obj["object"] = Object(obj);
+
+    Object f ([](const Object &o)->Object{
+        std::cout << o << std::endl;
+        std::cout << Object("Hello world") << std::endl;
+        return {};
+    });
+
+    f(Object(
+            List{"arg1", "arg2", "arg3"}
+            ));
+
+    obj["function"] = f;
+    obj["None"];
+    obj["function"](a);
+    std::cout << obj;
 }

@@ -8,40 +8,44 @@ namespace CppObject
 {
     std::ostream &operator<<(std::ostream &os, const Object &obj)
     {
-        if (obj.type == Object::None)
+        bool next = false;
+        switch (obj.type)
         {
-            os << "None";
-        } else if (obj.type == Object::Int)
-        {
-            os << *((int *) obj.container);
-        } else if (obj.type == Object::Double)
-        {
-            os << *((double *) obj.container);
-        } else if (obj.type == Object::String)
-        {
-            os << "\"" << *((std::string *) obj.container) << "\"";
-        } else if (obj.type == Object::ListType)
-        {
-            os << '[';
-            bool next = false;
-            for (const auto &o : *((List *) obj.container))
-            {
-                if (next) os << ", ";
-                os << o;
-                next = true;
-            }
-            os << ']';
-        } else if (obj.type == Object::ObjectType)
-        {
-            os << '{';
-            bool next = false;
-            for (const auto &o : *((MapType *) obj.container))
-            {
-                if (next) os << ", ";
-                os << o.first << " : " << o.second;
-                next = true;
-            }
-            os << '}';
+            case Object::None:
+                os << "None";
+                break;
+            case Object::Int:
+                os << *((int *) obj.container);
+                break;
+            case Object::Double:
+                os << *((double *) obj.container);
+                break;
+            case Object::String:
+                os << "\"" << *((std::string *) obj.container) << "\"";
+                break;
+            case Object::ListType:
+                os << '[';
+                for (const auto &o : *((List *) obj.container))
+                {
+                    if (next) os << ", ";
+                    os << o;
+                    next = true;
+                }
+                os << ']';
+                break;
+            case Object::ObjectType:
+                os << '{';
+                for (const auto &o : *((MapType *) obj.container))
+                {
+                    if (next) os << ", ";
+                    os << o.first << " : " << o.second;
+                    next = true;
+                }
+                os << '}';
+                break;
+            case Object::CallableType:
+                os << "fuction()";
+                break;
         }
         return os;
     }

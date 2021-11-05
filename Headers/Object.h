@@ -12,6 +12,7 @@
 #include <vector>
 #include <exception>
 #include <ostream>
+#include <functional>
 
 namespace CppObject
 {
@@ -42,6 +43,7 @@ namespace CppObject
 
     typedef std::vector<Object> List;
     typedef std::unordered_map<std::string, Object> MapType;
+    typedef std::function<Object (const Object&)> Callable;
 
     class Object
     {
@@ -61,6 +63,8 @@ namespace CppObject
 
         explicit Object(const std::unordered_map<std::string, Object> &);
 
+        explicit Object(const std::function<Object (const Object&)> &f);
+
         Object(const Object &);
 
         static void *allocateObject(const Object &);
@@ -68,11 +72,11 @@ namespace CppObject
         ~Object();
 
 
-        operator int();
+        explicit operator int();
 
-        operator double();
+        explicit operator double();
 
-        operator std::string();
+        explicit operator std::string();
 
         Object &operator[](const std::string &);
 
@@ -91,6 +95,8 @@ namespace CppObject
         const Object &operator[](int) const;
 
         Object &operator=(const Object &a);
+
+        Object &operator=(const char s[]);
 
         Object &operator+=(const Object &a);
 
@@ -118,6 +124,8 @@ namespace CppObject
 
         Object operator--(int);
 
+        Object operator()(const Object &obj);
+
     private:
 
         enum ContainedType : char
@@ -127,7 +135,8 @@ namespace CppObject
             String,
             Double,
             ObjectType,
-            ListType
+            ListType,
+            CallableType
         };
         char type;
         void *container;
