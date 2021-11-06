@@ -173,4 +173,34 @@ namespace CppObject
         }
         return *this;
     }
+
+    Object &Object::operator++() {
+        if (type != Int)
+            throw TypeError("No increment operator fo this type");
+        (*(int *) container)++;
+        return *this;
+    }
+
+    Object &Object::operator--() {
+        if (type != Int)
+            throw TypeError("No dencrement operator fo this type");
+        (*(int *) container)--;
+        return *this;
+    }
+
+    Object Object::operator++(int) {
+        if (type != Int)
+            throw TypeError("No increment operator fo this type");
+        Object copy = *this;
+        (*(int *) container)++;
+        return copy;
+    }
+
+    Object Object::operator--(int) {
+        if (type != Int)
+            throw TypeError("No dencrement operator fo this type");
+        Object copy = *this;
+        (*(int *) container)--;
+        return copy;
+    }
 }

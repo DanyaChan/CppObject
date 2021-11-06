@@ -46,6 +46,11 @@ namespace CppObject
     {
         if (type != ListType)
             throw TypeError("Object is not a list");
+        if (i < 0) {
+            i = ((List *) container)->size() + i;
+        }
+        if (i < 0 || i >= ((List *) container)->size())
+            throw OutOfRange("Index is out of range");
         return ((List *) container)->operator[](i);
     }
 
@@ -56,4 +61,12 @@ namespace CppObject
         return ((MapType *) container)->operator[](s);
     }
 
+    size_t Object::size() const
+    {
+        if (type == ListType)
+            return ((List*) container)->size();
+        if (type == ObjectType)
+            return ((MapType *) container)->size();
+        throw TypeError("Size is not supported for this type");
+    }
 }

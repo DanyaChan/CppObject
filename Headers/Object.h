@@ -6,6 +6,14 @@
 #ifndef OBJECT_OBJECT_H
 #define OBJECT_OBJECT_H
 
+#define CPPOBJECT_LOGGING
+
+#ifdef CPPOBJECT_LOGGING
+
+#include <iostream>
+
+#endif
+
 #include <string>
 #include <unordered_map>
 #include <set>
@@ -22,12 +30,35 @@ namespace CppObject
         virtual std::string what() = 0;
     };
 
+    class OutOfRange : Exception
+    {
+    public:
+        explicit OutOfRange(const std::string &s)
+        {
+            info = s;
+#ifdef CPPOBJECT_LOGGING
+            std::cout << s << std::endl;
+#endif
+        }
+
+        virtual std::string what() override
+        {
+            return info;
+        }
+
+    private:
+        std::string info;
+    };
+
     class TypeError : Exception
     {
     public:
         explicit TypeError(const std::string &s)
         {
             info = s;
+#ifdef CPPOBJECT_LOGGING
+            std::cout << s << std::endl;
+#endif
         }
 
         virtual std::string what() override
@@ -43,7 +74,7 @@ namespace CppObject
 
     typedef std::vector<Object> List;
     typedef std::unordered_map<std::string, Object> MapType;
-    typedef std::function<Object (const Object&)> Callable;
+    typedef std::function<Object(const Object &)> Callable;
 
     class Object
     {
@@ -59,11 +90,11 @@ namespace CppObject
 
         Object(const std::string &);
 
-        explicit Object(const std::vector<Object> &);
+        explicit Object(const List &);
 
-        explicit Object(const std::unordered_map<std::string, Object> &);
+        explicit Object(const MapType &);
 
-        explicit Object(const std::function<Object (const Object&)> &f);
+        explicit Object(const Callable &f);
 
         Object(const Object &);
 
@@ -80,13 +111,15 @@ namespace CppObject
 
         Object &operator[](const std::string &);
 
-        Object &operator[](const char s[]) {
+        Object &operator[](const char s[])
+        {
             return operator[](std::string(s));
         }
 
         const Object &operator[](const std::string &) const;
 
-        const Object &operator[](const char s[]) const {
+        const Object &operator[](const char s[]) const
+        {
             return operator[](std::string(s));
         }
 
@@ -108,6 +141,8 @@ namespace CppObject
 
         friend std::ostream &operator<<(std::ostream &os, const Object &obj);
 
+        // arithmetic
+
         friend Object operator+(const Object &a, const Object &b);
 
         friend Object operator-(const Object &a, const Object &b);
@@ -115,6 +150,21 @@ namespace CppObject
         friend Object operator/(const Object &a, const Object &b);
 
         friend Object operator*(const Object &a, const Object &b);
+
+        // comp operators
+
+        friend bool operator!=(const Object &a, const Object &b);
+
+        friend bool operator==(const Object &a, const Object &b);
+
+        friend bool operator<(const Object &a, const Object &b);
+
+        friend bool operator>(const Object &a, const Object &b);
+
+        friend bool operator<=(const Object &a, const Object &b);
+
+        friend bool operator>=(const Object &a, const Object &b);
+
 
         Object &operator++();
 
@@ -126,8 +176,17 @@ namespace CppObject
 
         Object operator()(const Object &obj);
 
+        static bool isNone(const Object &obj);
+
+        static Object jsonParser(const std::string &json);
+
+        size_t size() const;
+
     private:
 
+        static Object jsonParser(const char *begin, const char *end);
+
+        constexpr static const double Epsilon = 1e-12; // set to negative if u dont wanna == double comparation;
         enum ContainedType : char
         {
             None,
