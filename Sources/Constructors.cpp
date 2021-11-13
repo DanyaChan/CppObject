@@ -71,7 +71,7 @@ namespace CppObject
             case ListType:
                 return (void *) new List(*((List *) obj.container));
             case CallableType:
-                return (void *) new Callable(*(Callable *) obj.container);
+                return (void *) new Callable(*((Callable *)obj.container));
         }
         return nullptr;
     }

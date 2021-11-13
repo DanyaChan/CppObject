@@ -74,7 +74,7 @@ namespace CppObject
 
     typedef std::vector<Object> List;
     typedef std::unordered_map<std::string, Object> MapType;
-    typedef std::function<Object(const Object &)> Callable;
+    typedef std::function<Object(const Object &, Object *)> Callable;
 
     class Object
     {
@@ -174,11 +174,15 @@ namespace CppObject
 
         Object operator--(int);
 
-        Object operator()(const Object &obj);
+        Object operator()(const Object &obj = Object{}, Object *self = nullptr);
 
         static bool isNone(const Object &obj);
 
+        bool has(const std::string &property) const;
+
         static Object jsonParser(const std::string &json);
+
+        constexpr static const char CallerField[] = "__calley";
 
         size_t size() const;
 
@@ -187,6 +191,7 @@ namespace CppObject
         static Object jsonParser(const char *begin, const char *end);
 
         constexpr static const double Epsilon = 1e-12; // set to negative if u dont wanna == double comparation;
+
         enum ContainedType : char
         {
             None,

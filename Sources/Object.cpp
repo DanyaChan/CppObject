@@ -8,11 +8,18 @@ namespace CppObject
 {
     // This is temp file for new implementations i haven't decided where to put yet
 
-    Object Object::operator()(const Object &obj)
+    Object Object::operator()(const Object &obj, Object *self)
     {
+        if (has(Object::CallerField) && (*this)[CallerField].type == CallableType)
+        {
+            if (!self)
+                return (*this)[CallerField](obj, this);
+            return (*this)[CallerField](obj, self);
+        }
         if (type != CallableType)
             throw TypeError("Object is not callable");
-        return ((Callable *) container)->operator()(obj);
+
+        return ((Callable *) container)->operator()(obj, self);
     }
 
     bool Object::isNone(const Object &obj)
@@ -92,5 +99,14 @@ namespace CppObject
 
     bool operator!=(const Object &a, const Object &b) {
         return !(a == b);
+    }
+
+    bool Object::has(const std::string &property) const
+    {
+        if (type != ObjectType)
+        {
+            return false;
+        }
+        return ((MapType *) container)->find(property) != ((MapType *) container)->end();
     }
 }

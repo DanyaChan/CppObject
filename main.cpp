@@ -5,21 +5,22 @@ using namespace CppObject;
 
 int main()
 {
-    Object a = "test", b = 1;
-    a+="12";
-    std::cout << ++b << std::endl;
-    Object obj(MapType{});
-    obj["string"] = a;
-    obj["Int"] = b;
-    obj["double"] = 3.14;
-    obj["list"] = Object(List{1, 2, "test"});
+    Object s(MapType{});
 
-    Object obj1(MapType{});
-    obj1["string"] = a;
-    obj1["Int"] = b;
-    obj1["double"] = 3.14;
-    obj1["list"] = Object(List{1, 2, "test"});
-
-
-    std::cout << (obj == obj1);
+    s[Object::CallerField] = Object([](const Object &n, Object *self) -> Object {
+        if (Object::isNone(n)) {
+            return 0;
+        }
+        Object ret(MapType{});
+        ret["s"] = n;
+        ret[Object::CallerField] = Object([](const Object &n, Object *self) -> Object {
+            if (Object::isNone(n)) {
+                return (*self)["s"];
+            }
+            (*self)["s"] += n;
+            return (*self);
+        });
+        return ret;
+    });
+    std::cout << s(1)(4)(2)();
 }
