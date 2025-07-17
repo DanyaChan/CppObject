@@ -9,23 +9,23 @@ namespace CppObject
     std::ostream &operator<<(std::ostream &os, const Object &obj)
     {
         bool next = false;
-        switch (obj.type)
+        switch (obj.getType())
         {
-            case Object::None:
+            case Object::ContainedType::None:
                 os << "None";
                 break;
-            case Object::Int:
-                os << *((int *) obj.container);
+            case Object::ContainedType::Int:
+                os << obj.getAs<Integer>();
                 break;
-            case Object::Double:
-                os << *((double *) obj.container);
+            case Object::ContainedType::Float:
+                os << obj.getAs<Float>();
                 break;
-            case Object::String:
-                os << "\"" << *((std::string *) obj.container) << "\"";
+            case Object::ContainedType::String:
+                os << obj.getAs<String>();
                 break;
-            case Object::ListType:
+            case Object::ContainedType::ListType:
                 os << '[';
-                for (const auto &o : *((List *) obj.container))
+                for (const auto &o : obj.getAs<List>())
                 {
                     if (next) os << ", ";
                     os << o;
@@ -33,9 +33,9 @@ namespace CppObject
                 }
                 os << ']';
                 break;
-            case Object::ObjectType:
+            case Object::ContainedType::MapType:
                 os << '{';
-                for (const auto &o : *((MapType *) obj.container))
+                for (const auto &o : obj.getAs<MapType>())
                 {
                     if (next) os << ", ";
                     os << o.first << " : " << o.second;
@@ -43,7 +43,7 @@ namespace CppObject
                 }
                 os << '}';
                 break;
-            case Object::CallableType:
+            case Object::ContainedType::CallableType:
                 os << "fuction()";
                 break;
         }

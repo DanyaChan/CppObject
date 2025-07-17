@@ -8,23 +8,29 @@ namespace CppObject
 {
     // This is temp file for new implementations i haven't decided where to put yet
 
+    using std::get;
+
+    Object::ContainedType Object::getType() const {
+        return static_cast<ContainedType>(container.index());
+    }
+
     Object Object::operator()(const Object &obj, Object *self)
     {
-        if (has(Object::CallerField) && (*this)[CallerField].type == CallableType)
+        if (has(Object::CallerField) && (*this)[CallerField].getType() == ContainedType::CallableType)
         {
             if (!self)
                 return (*this)[CallerField](obj, this);
             return (*this)[CallerField](obj, self);
         }
-        if (type != CallableType)
+        if (getType() != ContainedType::CallableType)
             throw TypeError("Object is not callable");
 
-        return ((Callable *) container)->operator()(obj, self);
+        return get<Callable>(container).operator()(obj, self);
     }
 
     bool Object::isNone(const Object &obj)
     {
-        if (obj.type == None)
+        if (obj.getType() == ContainedType::None)
             return true;
         return false;
     }
@@ -39,32 +45,32 @@ namespace CppObject
     bool operator==(const Object &a, const Object &b)
     {
 
-        if (a.type == Object::None || b.type == Object::None)
+        if (a.getType() == Object::ContainedType::None || b.getType() == Object::ContainedType::None)
         {
             return false;
         }
 
-        if (a.type != b.type)
+        if (a.getType() != b.getType())
         {
             return false;
         }
 
-        if (a.type == Object::Int)
+        if (a.getType() == Object::ContainedType::Int)
         {
-            return *((int *) a.container) == *((int *) b.container);
+            return a.getAs<Integer>() == b.getAs<Integer>();
         }
 
-        if (a.type == Object::Double)
+        if (a.getType() == Object::ContainedType::Float)
         {
-            return std::fabs(*((double *) a.container) - *((double *) b.container)) < Object::Epsilon;
+            return std::fabs(a.getAs<Float>() - b.getAs<Float>()) < Object::Epsilon;
         }
 
-        if (a.type == Object::String)
+        if (a.getType() == Object::ContainedType::String)
         {
-            return *((std::string *) a.container) == *((std::string *) b.container);
+            return a.getAs<String>() == b.getAs<String>();
         }
 
-        if (a.type == Object::ListType)
+        if (a.getType() == Object::ContainedType::ListType)
         {
             if (a.size() != b.size())
                 return false;
@@ -77,18 +83,18 @@ namespace CppObject
             return true;
         }
 
-        if (a.type == Object::ObjectType)
+        if (a.getType() == Object::ContainedType::MapType)
         {
             if (a.size() != b.size())
                 return false;
 
-            auto aMap = (MapType *) a.container;
-            auto bMap = (MapType *) b.container;
-            for (const auto &kv : *aMap)
+            auto& aMap = a.getAs<MapType>();
+            auto& bMap = b.getAs<MapType>();
+            for (const auto &kv : aMap)
             {
-                if (bMap->find(kv.first) == bMap->end())
+                if (bMap.find(kv.first) == bMap.end())
                     return false;
-                if (bMap->at(kv.first) != bMap->at(kv.first))
+                if (bMap.at(kv.first) != bMap.at(kv.first))
                     return false;
             }
             return true;
@@ -103,10 +109,10 @@ namespace CppObject
 
     bool Object::has(const std::string &property) const
     {
-        if (type != ObjectType)
+        if (getType() != ContainedType::MapType)
         {
             return false;
         }
-        return ((MapType *) container)->find(property) != ((MapType *) container)->end();
+        return getAs<MapType>().find(property) != getAs<MapType>().end();
     }
 }

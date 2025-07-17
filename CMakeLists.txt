@@ -7,4 +7,4 @@ file(GLOB COMMON_SRC Sources/*.cpp)
 set(SOURCE ${COMMON_SRC})
 add_compile_options(-ftemplate-depth=50000)
 
-add_executable(Object main.cpp ${SOURCE})
+add_executable(Object.out main.cpp ${SOURCE})

@@ -1,19 +1,8 @@
 //
 // Created by danil on 03.11.2021.
 //
-
-
-#ifndef OBJECT_OBJECT_H
-#define OBJECT_OBJECT_H
-
-#define CPPOBJECT_LOGGING
-
-#ifdef CPPOBJECT_LOGGING
-
+#pragma once
 #include <iostream>
-
-#endif
-
 #include <string>
 #include <unordered_map>
 #include <set>
@@ -21,6 +10,8 @@
 #include <exception>
 #include <ostream>
 #include <functional>
+#include <variant>
+#include <memory>
 
 namespace CppObject
 {
@@ -72,23 +63,32 @@ namespace CppObject
 
     class Object;
 
+    using Null = nullptr_t;
+    using Integer = long long;
+    using String = std::string;
+    using Float = double;
+
     typedef std::vector<Object> List;
     typedef std::unordered_map<std::string, Object> MapType;
     typedef std::function<Object(const Object &, Object *)> Callable;
+
+    template <class T>
+    using Ptr = std::unique_ptr<T>;
 
     class Object
     {
     public:
         Object();
 
-        Object(int);
+        Object(int a) : container((long long) a){}
+        Object(Integer);
 
-        Object(double);
+        Object(Float);
 
-        Object(const char *s) : Object(std::string(s))
+        Object(const char *s) : Object(String(s))
         {}
 
-        Object(const std::string &);
+        Object(const String &);
 
         explicit Object(const List &);
 
@@ -103,24 +103,24 @@ namespace CppObject
         ~Object();
 
 
-        explicit operator int();
+        explicit operator Integer();
 
-        explicit operator double();
+        explicit operator Float();
 
-        explicit operator std::string();
+        explicit operator String();
 
-        Object &operator[](const std::string &);
+        Object &operator[](const String &);
 
         Object &operator[](const char s[])
         {
-            return operator[](std::string(s));
+            return operator[](String(s));
         }
 
-        const Object &operator[](const std::string &) const;
+        const Object &operator[](const String &) const;
 
         const Object &operator[](const char s[]) const
         {
-            return operator[](std::string(s));
+            return operator[](String(s));
         }
 
         Object &operator[](int);
@@ -129,7 +129,7 @@ namespace CppObject
 
         Object &operator=(const Object &a);
 
-        Object &operator=(const char s[]);
+        Object &operator=(const char* s);
 
         Object &operator+=(const Object &a);
 
@@ -186,26 +186,35 @@ namespace CppObject
 
         size_t size() const;
 
+        
+
     private:
 
-        static Object jsonParser(const char *begin, const char *end);
-
-        constexpr static const double Epsilon = 1e-12; // set to negative if u dont wanna == double comparation;
-
-        enum ContainedType : char
+        enum class ContainedType
         {
-            None,
+            None = 0,
             Int,
             String,
-            Double,
-            ObjectType,
+            Float,
+            MapType,
             ListType,
             CallableType
         };
-        char type;
-        void *container;
+
+        template <class Type>
+        Type& getAs() {
+            return std::get<Type>(container);
+        }
+        template <class Type>
+        const Type& getAs() const {
+            return std::get<Type>(container);
+        }
+        ContainedType getType() const;
+
+        static Object jsonParser(const char *begin, const char *end);
+
+        constexpr static double Epsilon = 1e-12; // set to negative if u dont wanna == double comparation;
+
+        std::variant<Null, Integer, String, Float, MapType, List, Callable> container{nullptr};
     };
 }
-
-
-#endif //OBJECT_OBJECT_H

@@ -33,75 +33,87 @@ namespace CppObject
 
     Object &Object::operator+=(const Object &a)
     {
-        if (type == Int)
+        if (getType() == ContainedType::Int)
         {
-            if (a.type == Int)
+            if (a.getType() == ContainedType::Int)
             {
-                *((int *) container) += *((int *) a.container);
-            } else if (a.type == Double)
+                getAs<Integer>() += a.getAs<Integer>();
+            }
+            else if (a.getType() == ContainedType::Float)
             {
-                *this = Object(*((int *) container) + *((double *) a.container));
-            } else
+                container = (getAs<Integer>() + a.getAs<Float>());
+            }
+            else
             {
-                throw TypeError("No viable type conversion.");
+                throw TypeError("No viable getType() conversion.");
             }
         }
-        else if (type == Double)
+        else if (getType() == ContainedType::Float)
         {
-            if (a.type == Int)
+            if (a.getType() == ContainedType::Int)
             {
-                *((double *) container) += (double) *((int *) a.container);
-            } else if (a.type == Double)
-            {
-                *((double *) container) += *((double *) a.container);
-            } else
-            {
-                throw TypeError("No viable type conversion.");
+                getAs<Float>() += a.getAs<Integer>();
             }
-        } else if (type == String)
+            else if (a.getType() == ContainedType::Float)
+            {
+                getAs<Integer>() += a.getAs<Float>();
+            }
+            else
+            {
+                throw TypeError("No viable getType() conversion.");
+            }
+        }
+        else if (getType() == ContainedType::String)
         {
-            if (a.type == String)
+            if (a.getType() == ContainedType::String)
             {
-                *((std::string *) container) += *((std::string *) a.container);
-            } else
-            {
-                throw TypeError("No viable type conversion.");
+                getAs<String>() += a.getAs<String>();
             }
-        } else
+            else
+            {
+                throw TypeError("No viable getType() conversion.");
+            }
+        }
+        else
         {
             throw TypeError("Unsupported operation");
         }
         return *this;
     }
 
-
     Object &Object::operator-=(const Object &a)
     {
-        if (type == Int)
+        if (getType() == ContainedType::Int)
         {
-            if (a.type == Int)
+            if (a.getType() == ContainedType::Int)
             {
-                *((int *) container) -= *((int *) a.container);
-            } else if (a.type == Double)
-            {
-                *this = Object(*((int *) container) - *((double *) a.container));
-            } else
-            {
-                throw TypeError("No viable type conversion.");
+                getAs<Integer>() -= a.getAs<Integer>();
             }
-        } else if (type == Double)
+            else if (a.getType() == ContainedType::Float)
+            {
+                container = (getAs<Integer>() - a.getAs<Float>());
+            }
+            else
+            {
+                throw TypeError("No viable getType() conversion.");
+            }
+        }
+        else if (getType() == ContainedType::Float)
         {
-            if (a.type == Int)
+            if (a.getType() == ContainedType::Int)
             {
-                *((double *) container) -= (double) *((int *) a.container);
-            } else if (a.type == Double)
-            {
-                *((double *) container) -= *((double *) a.container);
-            } else
-            {
-                throw TypeError("No viable type conversion.");
+               getAs<Float>() -= getAs<Integer>();
             }
-        } else
+            else if (a.getType() == ContainedType::Float)
+            {
+                getAs<Float>() -= getAs<Float>();
+            }
+            else
+            {
+                throw TypeError("No viable getType() conversion.");
+            }
+        }
+        else
         {
             throw TypeError("Unsupported operation");
         }
@@ -110,31 +122,37 @@ namespace CppObject
 
     Object &Object::operator*=(const Object &a)
     {
-        if (type == Int)
+        if (getType() == ContainedType::Int)
         {
-            if (a.type == Int)
+            if (a.getType() == ContainedType::Int)
             {
-                *((int *) container) *= *((int *) a.container);
-            } else if (a.type == Double)
+                getAs<Integer>() *= a.getAs<Integer>();
+            }
+            else if (a.getType() == ContainedType::Float)
             {
-                *this = Object(*((int *) container) * *((double *) a.container));
-            } else
+                container = getAs<Integer>() * a.getAs<Float>();
+            }
+            else
             {
                 throw TypeError("No viable type conversion.");
             }
-        } else if (type == Double)
+        }
+        else if (getType() == ContainedType::Float)
         {
-            if (a.type == Int)
+            if (a.getType() == ContainedType::Int)
             {
-                *((double *) container) *= (double) *((int *) a.container);
-            } else if (a.type == Double)
+                getAs<Float>() *= a.getAs<Integer>();
+            }
+            else if (a.getType() == ContainedType::Float)
             {
-                *((double *) container) *= *((double *) a.container);
-            } else
+                getAs<Float>() *= a.getAs<Float>();
+            }
+            else
             {
                 throw TypeError("No viable type conversion.");
             }
-        } else
+        }
+        else
         {
             throw TypeError("Unsupported operation");
         }
@@ -143,64 +161,75 @@ namespace CppObject
 
     Object &Object::operator/=(const Object &a)
     {
-        if (type == Int)
+        if (getType() == ContainedType::Int)
         {
-            if (a.type == Int)
+            if (a.getType() == ContainedType::Int)
             {
-                *((int *) container) /= *((int *) a.container);
-            } else if (a.type == Double)
-            {
-                *this = Object(*((int *) container) / *((double *) a.container));
-            } else
-            {
-                throw TypeError("No viable type conversion.");
+                if (a.getAs<Integer>() == 0) throw std::runtime_error("Div by zero");
+                getAs<Integer>() /= a.getAs<Integer>();
             }
-        } else if (type == Double)
+            else if (a.getType() == ContainedType::Float)
+            {
+                container = getAs<Integer>() / a.getAs<Float>();
+            }
+            else
+            {
+                throw TypeError("No viable getType() conversion.");
+            }
+        }
+        else if (getType() == ContainedType::Float)
         {
-            if (a.type == Int)
+            if (a.getType() == ContainedType::Int)
             {
-                *((double *) container) /= (double) *((int *) a.container);
-            } else if (a.type == Double)
-            {
-                *((double *) container) /= *((double *) a.container);
-            } else
-            {
-                throw TypeError("No viable type conversion.");
+                getAs<Float>() /= a.getAs<Integer>();
             }
-        } else
+            else if (a.getType() == ContainedType::Float)
+            {
+                getAs<Float>() /= a.getAs<Float>();
+            }
+            else
+            {
+                throw TypeError("No viable getType() conversion.");
+            }
+        }
+        else
         {
             throw TypeError("Unsupported operation");
         }
         return *this;
     }
 
-    Object &Object::operator++() {
-        if (type != Int)
-            throw TypeError("No increment operator fo this type");
-        (*(int *) container)++;
+    Object &Object::operator++()
+    {
+        if (getType() != ContainedType::Int)
+            throw TypeError("No increment operator fo this getType()");
+        getAs<Integer>()++;
         return *this;
     }
 
-    Object &Object::operator--() {
-        if (type != Int)
-            throw TypeError("No dencrement operator fo this type");
-        (*(int *) container)--;
+    Object &Object::operator--()
+    {
+        if (getType() != ContainedType::Int)
+            throw TypeError("No dencrement operator fo this getType()");
+        getAs<Integer>()++;
         return *this;
     }
 
-    Object Object::operator++(int) {
-        if (type != Int)
-            throw TypeError("No increment operator fo this type");
+    Object Object::operator++(int)
+    {
+        if (getType() != ContainedType::Int)
+            throw TypeError("No increment operator fo this getType()");
         Object copy = *this;
-        (*(int *) container)++;
+        getAs<Integer>()++;
         return copy;
     }
 
-    Object Object::operator--(int) {
-        if (type != Int)
-            throw TypeError("No dencrement operator fo this type");
+    Object Object::operator--(int)
+    {
+        if (getType() != ContainedType::Int)
+            throw TypeError("No dencrement operator fo this getType()");
         Object copy = *this;
-        (*(int *) container)--;
+        getAs<Integer>()--;
         return copy;
     }
 }

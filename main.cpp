@@ -9,7 +9,7 @@ int main()
 
     s[Object::CallerField] = Object([](const Object &n, Object *self) -> Object {
         if (Object::isNone(n)) {
-            return 0;
+            return 0LL;
         }
         Object ret(MapType{});
         ret["s"] = n;

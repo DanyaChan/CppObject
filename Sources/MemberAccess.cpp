@@ -7,66 +7,71 @@
 namespace CppObject
 {
 
-    Object::operator int()
+    Object::operator Integer()
     {
-        if (type != Int)
+        if (getType() != ContainedType::Int)
             throw TypeError("Object is not Int");
-        return *((int *) container);
+        return getAs<Integer>();
     }
 
-    Object::operator double()
+    Object::operator Float()
     {
-        if (type != Double)
+        if (getType() != ContainedType::Float)
             throw TypeError("Object is not Double");
-        return *((double *) container);
+        return getAs<Float>();
     }
 
-    Object::operator std::string()
+    Object::operator String()
     {
-        if (type != String)
+        if (getType() != ContainedType::String)
             throw TypeError("Object is not String");
-        return *((std::string *) container);
+        return getAs<String>();
     }
 
     Object &Object::operator[](const std::string &s)
     {
-        if (type != ObjectType)
+        if (getType() != ContainedType::MapType)
             throw TypeError("Object does not contain" + s);
-        return ((MapType *) container)->operator[](s);
+        return getAs<MapType>()[s];
     }
 
     Object &Object::operator[](int i)
     {
-        if (type != ListType)
+        if (getType() != ContainedType::ListType)
             throw TypeError("Object is not a list");
-        return ((List *) container)->operator[](i);
+        if (i < 0) {
+            i = getAs<List>().size() + i;
+        }
+        if (i < 0 || i >= getAs<List>().size())
+            throw OutOfRange("Index is out of range");
+        return getAs<List>()[i];
     }
 
     const Object &Object::operator[](int i) const
     {
-        if (type != ListType)
+        if (getType() != ContainedType::ListType)
             throw TypeError("Object is not a list");
         if (i < 0) {
-            i = ((List *) container)->size() + i;
+            i = getAs<List>().size() + i;
         }
-        if (i < 0 || i >= ((List *) container)->size())
+        if (i < 0 || i >= getAs<List>().size())
             throw OutOfRange("Index is out of range");
-        return ((List *) container)->operator[](i);
+        return getAs<List>()[i];
     }
 
     const Object &Object::operator[](const std::string &s) const
     {
-        if (type != ObjectType)
+        if (getType() != ContainedType::MapType)
             throw TypeError("Object does not contain" + s);
-        return ((MapType *) container)->operator[](s);
+        return getAs<MapType>().at(s);
     }
 
     size_t Object::size() const
     {
-        if (type == ListType)
-            return ((List*) container)->size();
-        if (type == ObjectType)
-            return ((MapType *) container)->size();
+        if (getType() == ContainedType::ListType)
+            return getAs<List>().size();
+        if (getType() == ContainedType::MapType)
+            return getAs<MapType>().size();
         throw TypeError("Size is not supported for this type");
     }
 }
