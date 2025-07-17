@@ -70,7 +70,7 @@ namespace CppObject
 
     typedef std::vector<Object> List;
     typedef std::unordered_map<std::string, Object> MapType;
-    typedef std::function<Object(const Object &, Object *)> Callable;
+    typedef std::function<Object(Object *, const Object &)> Callable;
 
     template <class T>
     using Ptr = std::unique_ptr<T>;
@@ -103,11 +103,11 @@ namespace CppObject
         ~Object();
 
 
-        explicit operator Integer();
+        explicit operator Integer() const;
 
-        explicit operator Float();
+        explicit operator Float() const;
 
-        explicit operator String();
+        explicit operator String() const;
 
         Object &operator[](const String &);
 
@@ -174,7 +174,7 @@ namespace CppObject
 
         Object operator--(int);
 
-        Object operator()(const Object &obj = Object{}, Object *self = nullptr);
+        Object operator()(const Object &obj = Object{});
 
         static bool isNone(const Object &obj);
 

@@ -8,24 +8,20 @@ namespace CppObject
 {
     // This is temp file for new implementations i haven't decided where to put yet
 
-    using std::get;
-
     Object::ContainedType Object::getType() const {
         return static_cast<ContainedType>(container.index());
     }
 
-    Object Object::operator()(const Object &obj, Object *self)
+    Object Object::operator()(const Object &obj)
     {
         if (has(Object::CallerField) && (*this)[CallerField].getType() == ContainedType::CallableType)
         {
-            if (!self)
-                return (*this)[CallerField](obj, this);
-            return (*this)[CallerField](obj, self);
+            return (*this)[CallerField].getAs<Callable>()(this, obj);
         }
         if (getType() != ContainedType::CallableType)
             throw TypeError("Object is not callable");
 
-        return get<Callable>(container).operator()(obj, self);
+        return getAs<Callable>()(this, obj);
     }
 
     bool Object::isNone(const Object &obj)

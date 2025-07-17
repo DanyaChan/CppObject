@@ -7,21 +7,21 @@
 namespace CppObject
 {
 
-    Object::operator Integer()
+    Object::operator Integer() const
     {
         if (getType() != ContainedType::Int)
             throw TypeError("Object is not Int");
         return getAs<Integer>();
     }
 
-    Object::operator Float()
+    Object::operator Float() const
     {
         if (getType() != ContainedType::Float)
             throw TypeError("Object is not Double");
         return getAs<Float>();
     }
 
-    Object::operator String()
+    Object::operator String() const
     {
         if (getType() != ContainedType::String)
             throw TypeError("Object is not String");
