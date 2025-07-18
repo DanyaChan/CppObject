@@ -16,12 +16,9 @@
 namespace CppObject
 {
 
-    class Exception : std::exception
-    {
-        virtual std::string what() = 0;
-    };
+    using Exception = std::exception;
 
-    class OutOfRange : Exception
+    class OutOfRange : public Exception
     {
     public:
         explicit OutOfRange(const std::string &s)
@@ -32,16 +29,16 @@ namespace CppObject
 #endif
         }
 
-        virtual std::string what() override
+        const char* what() const noexcept override
         {
-            return info;
+            return info.c_str();
         }
 
     private:
         std::string info;
     };
 
-    class TypeError : Exception
+    class TypeError : public Exception
     {
     public:
         explicit TypeError(const std::string &s)
@@ -52,9 +49,9 @@ namespace CppObject
 #endif
         }
 
-        virtual std::string what() override
+        const char* what() const noexcept override
         {
-            return info;
+            return info.c_str();
         }
 
     private:
@@ -90,11 +87,14 @@ namespace CppObject
 
         Object(const String &);
 
-        explicit Object(const List &);
+        Object(const List &);
 
-        explicit Object(const MapType &);
+        Object(const std::initializer_list<Object> &);
+        //explicit Object(const std::initializer_list<std::pair<String, Object>> &);
 
-        explicit Object(const Callable &f);
+        Object(const MapType &);
+
+        Object(Object(*f)(Object*, const Object&)) : container(Callable(f)) {}
 
         Object(const Object &);
 

@@ -31,7 +31,7 @@ namespace CppObject
     Object &Object::operator[](const std::string &s)
     {
         if (getType() != ContainedType::MapType)
-            throw TypeError("Object does not contain" + s);
+            throw TypeError("Object does not contain: " + s);
         return getAs<MapType>()[s];
     }
 
